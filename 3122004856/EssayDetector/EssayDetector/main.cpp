@@ -3,7 +3,7 @@
 #include "EssayAnalysist.h"
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
 	/* 
 	//EssayAnalysist模块测试
@@ -39,5 +39,38 @@ int main()
 		printf("读取成功!");
 	string Answer = "相似度为99.9%";
 	FileManager::WriteAnswerIntoFile(Answer, "C:\\Users\\25768\\Desktop\\EssayDetector\\3122004856\\AnsFiles\\Ans.txt");*/
+	
+	//读取文章并转为string
+	/*if (argv[1] == nullptr)
+	{
+		printf("参数输入有误！");
+		return 0;
+	}*/
+	string OriginEssay = FileManager::ReadTextAndConvertToString("C:\\Users\\25768\\Desktop\\EssayDetector\\3122004856\\testFiles\\orig.txt");
+	//if (argv[2] == nullptr)
+	//{
+	//	printf("参数输入有误！");
+	//	return 0;
+	//}
+	string CopyEssay = FileManager::ReadTextAndConvertToString("C:\\Users\\25768\\Desktop\\EssayDetector\\3122004856\\testFiles\\orig_0.8_add.txt");
+	//分词
+	vector<string> CutFromOrigin, CutFromCopy;
+	CutFromOrigin = EssayAnalysist::CutText(OriginEssay);
+	CutFromCopy = EssayAnalysist::CutText(CopyEssay);
+	//计算词频向量
+	vector<int> FrequencyOfOrigin, FrequencyOfCopy;
+	FrequencyOfOrigin = EssayAnalysist::BuildFrequencyVector(CutFromOrigin);
+	FrequencyOfCopy = EssayAnalysist::BuildFrequencyVector(CutFromCopy);
+	//计算相似度并写入结果文件
+	double DetectResult = EssayAnalysist::CaculateSimilarity(FrequencyOfOrigin, FrequencyOfCopy);	
+	string ResultReport = "文章的相似度为:"+ to_string(DetectResult);
+	/*if (argv[3] == nullptr)
+	{
+		printf("参数输入有误！");
+		return 0;
+	}*/
+	FileManager::WriteAnswerIntoFile(ResultReport, "C:\\Users\\25768\\Desktop\\EssayDetector\\3122004856\\AnsFiles\\Ans.txt");
+
+	
 	return 0;
 }
