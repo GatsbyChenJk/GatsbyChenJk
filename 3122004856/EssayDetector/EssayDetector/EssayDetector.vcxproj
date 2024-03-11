@@ -133,7 +133,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ErrorProcessor.h" />
     <ClInclude Include="EssayAnalysist.h" />
     <ClInclude Include="FileManager.h" />
   </ItemGroup>

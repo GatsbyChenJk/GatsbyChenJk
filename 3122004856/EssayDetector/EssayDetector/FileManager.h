@@ -17,7 +17,7 @@ public:
         if (!file.is_open()) 
         {
             cerr << "无法打开文件：" << FilePath << endl;
-            return nullptr;
+            return "";
         }
         string line;
         while (std::getline(file, line)) 
