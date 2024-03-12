@@ -12,32 +12,32 @@ static class FileManager
 public:
 	static string ReadTextAndConvertToString(const string& FilePath)
 	{
-        string content;
-        ifstream file(FilePath);
-        if (!file.is_open()) 
+        string Content;
+        ifstream File(FilePath);
+        if (!File.is_open()) 
         {
             cerr << "无法打开文件：" << FilePath << endl;
             return "";
         }
-        string line;
-        while (std::getline(file, line)) 
+        string Line;
+        while (std::getline(File, Line)) 
         {
-            content += line + "\n"; 
+            Content += Line + "\n"; 
         }
-        file.close();
-        return content;
+        File.close();
+        return Content;
 	}
 
     static void WriteAnswerIntoFile(const string& Ans, const string& FilePath)
     {
-        std::ofstream file(FilePath);
-        if (!file.is_open()) 
+        std::ofstream File(FilePath, std::ofstream::out | std::ofstream::trunc); // 打开文件时清空文件
+        if (!File.is_open()) 
         {
             std::cerr << "无法打开文件：" << FilePath << std::endl;
             return;
         }
-        file << Ans;
-        file.close();
+        File << Ans;
+        File.close();
         std::cout << "文件写入成功！" << std::endl;
     }
 };

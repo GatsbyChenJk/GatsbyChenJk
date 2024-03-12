@@ -6,6 +6,7 @@
 #include<map>
 #include<sstream>
 #include<cmath>
+#include<thread>
 #include "jieba.hpp"
 using namespace std;
 
@@ -22,10 +23,10 @@ public:
 			"C:/Users/25768/Desktop/EssayDetector/3122004856/dict/user.dict.utf8",
 			"C:/Users/25768/Desktop/EssayDetector/3122004856/dict/idf.utf8",
 			"C:/Users/25768/Desktop/EssayDetector/3122004856/dict/stop_words.utf8");
-
 		vector<string> words;
 		jieba.Cut(Text, words, true);
 		return words;
+		
 	}
 	//构造词频向量
 	static vector<double> BuildFrequencyVector(const vector<string>& tokens)
@@ -49,28 +50,28 @@ public:
 	static vector<vector<string>> ConvertToDocuments(const vector<string>& tokens, const string& delimiter) 
 	{
 		vector<vector<string>> documents;
-		vector<string> currentDocument;
+		vector<string> CurrentDocument;
 
 		// 遍历分词结果
 		for (const auto& token : tokens) 
 		{
 			if (token == delimiter)
 			{ // 遇到文档边界
-				if (!currentDocument.empty()) 
+				if (!CurrentDocument.empty()) 
 				{ // 如果当前文档不为空
-					documents.push_back(currentDocument); // 将当前文档存储到文档集合中
-					currentDocument.clear(); // 清空当前文档
+					documents.push_back(CurrentDocument); // 将当前文档存储到文档集合中
+					CurrentDocument.clear(); // 清空当前文档
 				}
 			}
 			else 
 			{ // 遇到分词结果
-				currentDocument.push_back(token); // 将分词结果存储到当前文档中
+				CurrentDocument.push_back(token); // 将分词结果存储到当前文档中
 			}
 		}
 		// 处理最后一个文档
-		if (!currentDocument.empty()) 
+		if (!CurrentDocument.empty()) 
 		{
-			documents.push_back(currentDocument);
+			documents.push_back(CurrentDocument);
 		}
 		return documents;
 	}
@@ -78,60 +79,65 @@ public:
 	// 计算逆文档频率（IDF）
 	static vector<double> CalculateIDF(const vector<vector<string>>& documents) 
 	{
-		map<string, double> idfValues;
-		int totalDocuments = documents.size();
+		map<string, double> IdfValues;
+		int TotalDocuments = documents.size();
 		// 统计包含每个单词的文档数量
-		map<string, int> wordDocumentCount;
+		map<string, int> WordDocumentCount;
 		for (const auto& document : documents) 
 		{
-			map<string, bool> uniqueWords;
+			map<string, bool> UniqueWords;
 			for (const auto& word : document) 
 			{
-				if (!uniqueWords[word]) 
+				if (!UniqueWords[word]) 
 				{
-					wordDocumentCount[word]++;
-					uniqueWords[word] = true;
+					WordDocumentCount[word]++;
+					UniqueWords[word] = true;
 				}
 			}
 		}
 		// 计算每个单词的IDF值
-		for (const auto& pair : wordDocumentCount) 
+		for (const auto& pair : WordDocumentCount) 
 		{
 			const string& word = pair.first;
-			int documentCount = pair.second;
-			double idf = log(static_cast<double>(totalDocuments) / (documentCount + 1)); // 加1是为了防止除零错误
-			idfValues[word] = idf;
+			int DocumentCount = pair.second;
+			double idf = log(static_cast<double>(TotalDocuments) / (DocumentCount + 1)); // 加1是为了防止除零错误
+			IdfValues[word] = idf;
 		}	
-		vector<double> idfVector;
-		// 遍历idfValues，将每个IDF值存储到vector中
-		for (const auto& pair : idfValues) 
+		vector<double> IdfVector;
+		// 遍历IdfValues，将每个IDF值存储到vector中
+		for (const auto& pair : IdfValues) 
 		{
-			idfVector.push_back(pair.second);
+			IdfVector.push_back(pair.second);
 		}
-		return idfVector;
+		return IdfVector;
 	}
 
-	//根据词频向量计算文本相似度，基于欧氏距离
+	//根据向量计算文本相似度，基于余弦相似度
 	static double CaculateSimilarity(const vector<double>& Vec1, const vector<double>& Vec2)
 	{
-		size_t VecSize = Vec1.size();
-		if (Vec1.empty() || Vec2.empty()) 
-		{
+		size_t VecSize = std::min(Vec1.size(), Vec2.size());
+		if (VecSize == 0) {
 			return 0.0;
 		}
-		else if (Vec1.size() != Vec2.size())
-		{
-			VecSize = min(Vec1.size(), Vec2.size());
-		}
-		// 计算欧式距离
-		double distance = 0.0;
+
+		double DotProduct = 0.0;
+		double MagVec1 = 0.0;
+		double MagVec2 = 0.0;
+
+		// 计算点积
 		for (size_t i = 0; i < VecSize; ++i) {
-			distance += pow(Vec1[i] - Vec2[i], 2);
+			DotProduct += Vec1[i] * Vec2[i];
+			MagVec1 += Vec1[i] * Vec1[i];
+			MagVec2 += Vec2[i] * Vec2[i];
 		}
-		//考虑规范化
-		double NormalizeDistance = sqrt(distance) / (double)VecSize;
-		//相似度计算
-		double similarity = 1.0 / (1.0 + NormalizeDistance);
+
+		// 计算向量的模
+		MagVec1 = sqrt(MagVec1);
+		MagVec2 = sqrt(MagVec2);
+
+		// 计算余弦相似度
+		double similarity = DotProduct / (MagVec1 * MagVec2);
+
 		return similarity;
 	}
 
