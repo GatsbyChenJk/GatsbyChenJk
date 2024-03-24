@@ -15,10 +15,13 @@ class QuestionGenerator:
 
         if operator == '÷':
             # 生成真分数
-            numerator = random.randint(1, operand - 1)
+            numerator = random.randint(1, operand - 1) if operand > 1 else 1
             fraction = Fraction(numerator, operand)
             expression += f" {operator} {fraction}"
         else:
+            if operator == '-':
+                # 避免生成负数
+                operand = random.randint(1, int(expression.split()[-1]))
             expression += f" {operator} {operand}"
 
         return expression
