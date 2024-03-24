@@ -20,9 +20,9 @@ class Calculator:
         for question in questions:
             answers.append(Calculator.evaluate_expression(question))
         return answers
-
+#功能测试
 if __name__ == "__main__":
-    num_questions = 10
+    num_questions = 1000
     max_operand = 10
     gen = QuestionGenerator()
     test_questions = gen.generate_math_questions(num_questions,max_operand)
