@@ -1,6 +1,5 @@
 import argparse
-from QuestionCalculator import *
-import QuestionCalculator
+import cProfile
 from FileManager import *
 
 if __name__ == "__main__":
@@ -12,5 +11,8 @@ if __name__ == "__main__":
     if args.num_questions and args.range:
         questionList = gen.generate_math_questions(args.num_questions,args.range)
         answerList = Calculator.calculate_answers(questionList)
+        cProfile.run('gen.generate_math_questions(args.num_questions,args.range)')
+        cProfile.run('Calculator.calculate_answers(questionList)')
         FileManager.WriteDataIntoTextFile(questionList, '题目', "Questions.txt")
         FileManager.WriteDataIntoTextFile(answerList, '答案', "Answers.txt")
+
